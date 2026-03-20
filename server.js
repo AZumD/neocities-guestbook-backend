@@ -9,7 +9,8 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-const db = new sqlite3.Database(path.join(__dirname, "guestbook.db"));
+const dbPath = process.env.DB_PATH || path.join(__dirname, "guestbook.db");
+const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
   db.run(`
