@@ -72,3 +72,29 @@ app.post("/api/guestbook", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Guestbook API running on port ${PORT}`);
 });
+
+
+app.delete("/api/guestbook/:id", (req, res) => {
+  const { id } = req.params;
+  const adminKey = req.headers["x-admin-key"];
+
+  if (adminKey !== process.env.ADMIN_KEY) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
+  db.run(
+    `DELETE FROM guestbook_messages WHERE id = ?`,
+    [id],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: "Database delete failed" });
+      }
+
+      if (this.changes === 0) {
+        return res.status(404).json({ error: "Message not found" });
+      }
+
+      res.json({ success: true });
+    }
+  );
+});
